@@ -1,0 +1,59 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
+}
+
+group = 'net.talor1n'
+version = '1.0.0'
+
+repositories {
+    mavenCentral()
+}
+
+application {
+    mainClass.set("net.talor1n.framebox.Main")
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+dependencies {
+    implementation 'com.formdev:flatlaf:3.6.1'
+
+    compileOnly 'org.projectlombok:lombok:1.18.40'
+    annotationProcessor 'org.projectlombok:lombok:1.18.40'
+
+    implementation 'org.apache.logging.log4j:log4j-api:2.23.1'
+    implementation 'org.apache.logging.log4j:log4j-core:2.23.1'
+    implementation "org.apache.logging.log4j:log4j-slf4j2-impl:2.23.1"
+    runtimeOnly 'org.fusesource.jansi:jansi:2.4.1'
+
+    implementation "org.hibernate.orm:hibernate-core:6.4.1.Final"
+    implementation "org.hibernate.orm:hibernate-community-dialects:6.4.1.Final"
+    implementation "org.xerial:sqlite-jdbc:3.46.0.0"
+
+    implementation "org.reflections:reflections:0.10.2"
+
+    testImplementation platform('org.junit:junit-bom:5.10.0')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+tasks.named('shadowJar') {
+    archiveBaseName.set("FrameBox")
+    archiveVersion.set(version)
+    archiveClassifier.set("")
+}
+
+apply from: "gradle/packr.gradle"

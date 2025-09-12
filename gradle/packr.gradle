@@ -1,0 +1,94 @@
+// ---------- Packr configuration ----------
+configurations {
+    packr
+}
+
+dependencies {
+    // local Packr jar
+    packr files("libs/packr-all-4.0.0.jar")
+}
+
+// Paths for JRE
+def jreDir = file("$buildDir/jre")
+def jreZip = file("$buildDir/zulu21-jre.zip")
+
+// ---------- Download JRE ----------
+tasks.register('downloadJre') {
+    group = "setup"
+    description = "Downloads Zulu JRE 21"
+
+    outputs.file(jreZip)
+
+    doLast {
+        if (!jreZip.exists()) {
+            println "⬇️ Downloading Zulu JRE 21..."
+            exec {
+                commandLine "curl", "-L", "-o", jreZip.absolutePath,
+                        "https://cdn.azul.com/zulu/bin/zulu21.38.21-ca-jre21.0.5-win_x64.zip"
+            }
+        } else {
+            println "✔️ JRE already downloaded"
+        }
+    }
+}
+
+// ---------- Unpack JRE ----------
+tasks.register('unpackJre', Copy) {
+    group = "setup"
+    description = "Unpacks JRE into build/jre"
+
+    dependsOn tasks.named('downloadJre')
+
+    from(zipTree(jreZip))
+    into(jreDir)
+}
+
+// ---------- PackrExe ----------
+tasks.register('packrExe', JavaExec) {
+    group = "distribution"
+    description = "Builds portable exe using Packr"
+
+    dependsOn tasks.shadowJar
+    dependsOn tasks.named('unpackJre')
+
+    mainClass.set("com.badlogicgames.packr.Packr")
+    classpath = configurations.packr
+
+    doFirst {
+        def outDir = file("$buildDir/packr")
+        if (outDir.exists()) {
+            println "🧹 Removing old build: ${outDir}"
+            outDir.deleteDir()
+        }
+        outDir.mkdirs()
+
+        def unpackedJre = jreDir.listFiles()
+                .find { it.isDirectory() && it.name.startsWith("zulu21") }
+
+        if (unpackedJre == null) {
+            throw new GradleException("Unpacked JRE not found in $jreDir")
+        }
+
+        args = [
+                "--platform", "windows64",
+                "--jdk", unpackedJre.absolutePath,
+                "--executable", "FrameBox",
+                "--classpath", "build/libs/FrameBox-${version}.jar",
+                "--mainclass", "net.talor1n.framebox.Main",
+                "--output", outDir.absolutePath
+                // , "--icon", "src/main/resources/icon.ico"
+        ]
+    }
+}
+
+// ---------- Archive build ----------
+tasks.register('zipPackr', Zip) {
+    group = "distribution"
+    description = "Archives Packr output into zip"
+
+    dependsOn tasks.named('packrExe')
+
+    from("$buildDir/packr")
+    archiveFileName.set("FrameBox-${version}-packr.zip")
+    destinationDirectory.set(file("$buildDir/distributions"))
+}
