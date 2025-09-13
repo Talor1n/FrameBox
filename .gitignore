@@ -41,3 +41,4 @@ bin/
 ### FrameBox ###
 /app.db
 /logs/
+/videos/

@@ -34,7 +34,25 @@ dependencies {
 
     implementation "org.hibernate.orm:hibernate-core:6.4.1.Final"
     implementation "org.hibernate.orm:hibernate-community-dialects:6.4.1.Final"
+    implementation "org.hibernate.validator:hibernate-validator:8.0.1.Final"
+    implementation "jakarta.validation:jakarta.validation-api:3.0.2"
+    implementation "org.glassfish:jakarta.el:4.0.2"
     implementation "org.xerial:sqlite-jdbc:3.46.0.0"
+
+    // Password hash
+    implementation "org.mindrot:jbcrypt:0.4"
+
+    // Webcam
+    // Windows x86_64
+    runtimeOnly "org.bytedeco:opencv:4.5.5-1.5.7:windows-x86_64"
+    runtimeOnly "org.bytedeco:ffmpeg:5.0-1.5.7:windows-x86_64"
+    runtimeOnly "org.bytedeco:ffmpeg:5.0-1.5.7:windows-x86_64-gpl"
+
+    implementation "org.bytedeco:javacv:1.5.7"
+    implementation 'org.bytedeco:opencv:4.5.5-1.5.7'
+    implementation 'org.bytedeco:ffmpeg:5.0-1.5.7'
+
+    implementation 'org.bytedeco:openblas-platform:0.3.19-1.5.7'
 
     implementation "org.reflections:reflections:0.10.2"
 

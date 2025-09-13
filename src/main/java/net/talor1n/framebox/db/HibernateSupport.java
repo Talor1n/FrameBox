@@ -1,5 +1,7 @@
 package net.talor1n.framebox.db;
 
+import net.talor1n.framebox.exception.ValidationException;
+import net.talor1n.framebox.util.ValidationUtils;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -8,7 +10,7 @@ import org.hibernate.boot.MetadataSources;
 import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 
-import java.util.Collection;
+import java.util.*;
 import java.util.function.Function;
 
 public class HibernateSupport implements AutoCloseable {
@@ -43,5 +45,12 @@ public class HibernateSupport implements AutoCloseable {
         }
     }
 
-    @Override public void close() { sessionFactory.close(); }
+    public <T> void validate(T entity) throws ValidationException {
+        ValidationUtils.validationWithError(entity);
+    }
+
+    @Override
+    public void close() {
+        sessionFactory.close();
+    }
 }
